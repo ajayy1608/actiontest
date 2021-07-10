@@ -8,6 +8,7 @@ on:
 jobs:
   build_and_push_nameapp:
     name: Build and Push image to Docker Hub
+    environment: prod
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
