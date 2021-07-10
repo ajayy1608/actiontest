@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'Dockerfile'
+      - 'nameapp.py'
 
 jobs:
   build_and_push_nameapp:
