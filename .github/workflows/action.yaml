@@ -5,6 +5,7 @@ on:
     branches: [ test-whitelisting ]
 jobs:
   deploy:
+    environment: prod
     runs-on: ubuntu-latest
     steps:
     - name: Get Github runner IP
