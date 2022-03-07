@@ -18,7 +18,7 @@ jobs:
 
     - name: Add Github runner IP to security group
       run: |
-        aws ec2 authorize-security-group-ingress --group-name ${{ env.NEXUS_IQ_SG_NAME }} --protocol tcp --port 443 --cidr ${{ steps.ip.outputs.ipv4 }}/32    
+        aws ec2 authorize-security-group-ingress --group-name ${{ secrets.NEXUS_IQ_SG_NAME }} --protocol tcp --port 443 --cidr ${{ steps.ip.outputs.ipv4 }}/32    
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.SHARED_CIRCLECI_USER_ACCESS_KEY }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.SHARED_CIRCLECI_USER_SECRET_KEY }}
@@ -31,7 +31,7 @@ jobs:
 
     - name: Remove Github runner IP from security group
       run: |
-        aws ec2 revoke-security-group-ingress --group-name ${{ env.NEXUS_IQ_SG_NAME }} --protocol tcp --port 443 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+        aws ec2 revoke-security-group-ingress --group-name ${{ secrets.NEXUS_IQ_SG_NAME }} --protocol tcp --port 443 --cidr ${{ steps.ip.outputs.ipv4 }}/32
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.SHARED_CIRCLECI_USER_ACCESS_KEY }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.SHARED_CIRCLECI_USER_SECRET_KEY }}
