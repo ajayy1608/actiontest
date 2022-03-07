@@ -1,29 +1,38 @@
-name: Build and Publish nameapp
+name: Deploy to prod
 
 on:
-  pull_request:
-    paths:
-      - 'Dockerfile'
-      - 'nameapp.py'
-
+  push:
+    branches: [ test-whitelisting ]
 jobs:
-  build_and_push_nameapp:
-    name: Build and Push image to Docker Hub
-    environment: prod
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@v2
+    - name: Get Github runner IP
+      id: ip
+      uses: haythem/public-ip@v1.2
 
-      - name: Login to DockerHub
-        uses: docker/login-action@v1 
-        with:
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_PASSWD }}
+    - name: Setting environment variables..
+      run: |
+        echo "AWS_DEFAULT_REGION=eu-central-1" >> $GITHUB_ENV
 
-      - name: Build and push
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: true
-          tags: aksy121/actionapp:latest
+    - name: Add Github runner IP to security group
+      run: |
+        aws ec2 authorize-security-group-ingress --group-name ${{ env.NEXUS_IQ_SG_NAME }} --protocol tcp --port 443 --cidr ${{ steps.ip.outputs.ipv4 }}/32    
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.SHARED_CIRCLECI_USER_ACCESS_KEY }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.SHARED_CIRCLECI_USER_SECRET_KEY }}
+        AWS_DEFAULT_REGION: ${{ env.AWS_DEFAULT_REGION }}
+
+    - name: Setting environment variables..
+      run: |
+        echo "<Do some work here>"
+        sleep 300
+
+    - name: Remove Github runner IP from security group
+      run: |
+        aws ec2 revoke-security-group-ingress --group-name ${{ env.NEXUS_IQ_SG_NAME }} --protocol tcp --port 443 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.SHARED_CIRCLECI_USER_ACCESS_KEY }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.SHARED_CIRCLECI_USER_SECRET_KEY }}
+        AWS_DEFAULT_REGION: ${{ env.AWS_DEFAULT_REGION }}
+      if: always()
