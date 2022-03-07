@@ -1,4 +1,4 @@
-name: Deploy to prod
+name: Test Whitelisting
 
 on:
   push:
@@ -12,26 +12,25 @@ jobs:
       id: ip
       uses: haythem/public-ip@v1.2
 
-    - name: Setting environment variables..
+    - name: Setting environment variables
       run: |
         echo "AWS_DEFAULT_REGION=eu-central-1" >> $GITHUB_ENV
 
     - name: Add Github runner IP to security group
       run: |
-        aws ec2 authorize-security-group-ingress --group-id ${{ secrets.NEXUS_IQ_SG_NAME }} --protocol tcp --port 443 --cidr ${{ steps.ip.outputs.ipv4 }}/32    
+        aws ec2 authorize-security-group-ingress --group-id ${{ secrets.NEXUS_IQ_SG_ID }} --protocol tcp --port 443 --cidr ${{ steps.ip.outputs.ipv4 }}/32    
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.SHARED_CIRCLECI_USER_ACCESS_KEY }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.SHARED_CIRCLECI_USER_SECRET_KEY }}
         AWS_DEFAULT_REGION: ${{ env.AWS_DEFAULT_REGION }}
 
-    - name: Setting environment variables..
+    - name: Do your actual work here
       run: |
         echo "<Do some work here>"
-        sleep 300
 
     - name: Remove Github runner IP from security group
       run: |
-        aws ec2 revoke-security-group-ingress --group-id ${{ secrets.NEXUS_IQ_SG_NAME }} --protocol tcp --port 443 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+        aws ec2 revoke-security-group-ingress --group-id ${{ secrets.NEXUS_IQ_SG_ID }} --protocol tcp --port 443 --cidr ${{ steps.ip.outputs.ipv4 }}/32
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.SHARED_CIRCLECI_USER_ACCESS_KEY }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.SHARED_CIRCLECI_USER_SECRET_KEY }}
